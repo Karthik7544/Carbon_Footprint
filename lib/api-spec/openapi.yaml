@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CarbonEra API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: submissions
+    description: Quiz submission operations
+  - name: leaderboard
+    description: City leaderboard operations
+  - name: pledges
+    description: Pledge operations
+  - name: story
+    description: AI story generation
+  - name: live
+    description: Live CO2 data
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +33,198 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /submissions:
+    post:
+      operationId: createSubmission
+      tags: [submissions]
+      summary: Save a quiz submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          description: Bad request
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Get city leaderboard
+      responses:
+        "200":
+          description: Leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /pledges:
+    post:
+      operationId: createPledge
+      tags: [pledges]
+      summary: Save a pledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PledgeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pledge"
+        "400":
+          description: Bad request
+
+  /pledges/stats:
+    get:
+      operationId: getPledgeStats
+      tags: [pledges]
+      summary: Get pledge counts by type
+      responses:
+        "200":
+          description: Pledge stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PledgeStat"
+
+  /story:
+    post:
+      operationId: generateStory
+      tags: [story]
+      summary: Generate AI carbon story
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoryRequest"
+      responses:
+        "200":
+          description: Generated story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoryResponse"
+        "400":
+          description: Bad request
+
+  /live:
+    get:
+      operationId: getLiveData
+      tags: [live]
+      summary: Get live CO2 intensity data
+      responses:
+        "200":
+          description: Live CO2 data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveData"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    Submission:
+      type: object
+      required: [id, city, totalCO2, dietScore, transportScore, energyScore, shoppingScore, createdAt]
+      properties:
+        id:           { type: integer }
+        city:         { type: string }
+        totalCO2:     { type: number }
+        dietScore:    { type: number }
+        transportScore: { type: number }
+        energyScore:  { type: number }
+        shoppingScore: { type: number }
+        createdAt:    { type: string }
+
+    SubmissionInput:
+      type: object
+      required: [city, totalCO2, dietScore, transportScore, energyScore, shoppingScore]
+      properties:
+        city:         { type: string }
+        totalCO2:     { type: number }
+        dietScore:    { type: number }
+        transportScore: { type: number }
+        energyScore:  { type: number }
+        shoppingScore: { type: number }
+
+    LeaderboardEntry:
+      type: object
+      required: [city, avgCO2, count]
+      properties:
+        city:    { type: string }
+        avgCO2:  { type: number }
+        count:   { type: integer }
+
+    Pledge:
+      type: object
+      required: [id, city, pledgeType, createdAt]
+      properties:
+        id:         { type: integer }
+        city:       { type: string }
+        pledgeType: { type: string }
+        createdAt:  { type: string }
+
+    PledgeInput:
+      type: object
+      required: [city, pledgeType]
+      properties:
+        city:       { type: string }
+        pledgeType: { type: string }
+
+    PledgeStat:
+      type: object
+      required: [pledgeType, count]
+      properties:
+        pledgeType: { type: string }
+        count:      { type: integer }
+
+    StoryRequest:
+      type: object
+      required: [city, totalCO2, dietScore, transportScore, energyScore, topCategory]
+      properties:
+        city:           { type: string }
+        totalCO2:       { type: number }
+        dietScore:      { type: number }
+        transportScore: { type: number }
+        energyScore:    { type: number }
+        topCategory:    { type: string }
+
+    StoryResponse:
+      type: object
+      required: [story]
+      properties:
+        story: { type: string }
+
+    LiveData:
+      type: object
+      required: [co2ppm, indiaGridIntensity, updatedAt]
+      properties:
+        co2ppm:            { type: number }
+        indiaGridIntensity: { type: ["number", "null"] }
+        updatedAt:         { type: string }
