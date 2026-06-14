@@ -1,0 +1,559 @@
+ here's the reference about how my project's gonna be: # CarbonEra — Full Project Blueprint & Vibe Coding Master Prompt
+
+---
+
+## What we're building
+
+**CarbonEra** is a full-stack, scroll-driven, AI-powered website that makes carbon footprint awareness deeply personal and emotionally resonant. It's not a dashboard. It's an experience — a journey from 1750 (industrial revolution) to the present day, and then into the user's own life.
+
+The user lands, scrolls through history, enters their lifestyle details, gets an AI-generated personal carbon story, sees their gamified footprint breakdown, and leaves with a shareable Carbon Card.
+
+**Target:** Google PromptWars challenge — top 25 out of 900+ students.
+
+---
+
+## Core user journey (in order)
+
+1. **Landing / History scroll** — animated Earth globe, CO2 rising from 1750 → 2024 with real OWID data, GSAP scroll triggers
+2. **Present day crisis** — live CO2 PPM counter, live India grid emissions via CO2Signal API
+3. **Personal quiz** — 60-second lifestyle quiz (city, diet, transport, energy, flights)
+4. **Footprint result** — your personal CO2 number, compared to India avg / global avg / Paris target
+5. **Gamified breakdown** — 4 category XP bars (diet, transport, energy, shopping), level labels, unlock mechanic
+6. **AI story** — LLM generates a 3-paragraph personalized climate story
+7. **Pledge + Carbon Card** — user picks a habit change, downloads/shares a styled card
+
+---
+
+## Tech stack (all free)
+
+### Frontend
+- **React + Vite** — fast dev, HMR, easy deployment
+- **Tailwind CSS** — utility-first, pairs with component libraries
+- **GSAP + ScrollTrigger** — scroll animations, timeline reveals, number counters
+- **Three.js** — Earth globe on the landing section (animated CO2 haze builds up as user scrolls)
+- **Framer Motion** — micro-interactions, page transitions, quiz step animations
+- **Recharts** — CO2 historical chart (1750–2024), trajectory vs Paris target
+
+### UI Component libraries
+- **shadcn/ui** — for quiz inputs, buttons, progress bars, cards. Install: `npx shadcn@latest init`
+- **Aceternity UI** — for the hero background effects (aurora, spotlight, particle effects). Copy components directly from https://ui.aceternity.com/components
+- **Lucide React** — icons (already included with shadcn)
+
+### Backend
+- **Node.js + Express** — REST API server
+- **MongoDB Atlas** (free tier, 512MB) — stores quiz submissions, city leaderboard, pledge counts
+- **Mongoose** — ODM for MongoDB
+- **Redis via Upstash** (free tier) — rate limiting on AI endpoint (max 1 LLM call per session), caching live API responses
+- **Winston** — structured logging
+- **cors, dotenv, express-rate-limit** — standard middleware
+
+### APIs (all free tier)
+| API | What it does | Free tier |
+|---|---|---|
+| **CO2Signal** | Live electricity grid carbon intensity by country | 30 req/hr |
+| **Climatiq** | Carbon calculation from activities (flight, drive, meal) | 100 req/month |
+| **Claude API (Anthropic)** | Personalized story generation | $5 free credit on signup |
+| **OpenAI API** | Alternative to Claude | $5 free credit |
+| **Our World in Data** | Historical CO2 dataset (CSV, no key needed) | Fully open |
+| **Open-Meteo** | Weather + air quality by city | Fully free |
+
+### Hosting (all free)
+- **Vercel** — frontend (React/Vite). Connect GitHub repo, auto-deploys on push
+- **Render** — backend (Node/Express). Free tier, spins down after inactivity (acceptable for a challenge)
+- **MongoDB Atlas** — cloud DB, free 512MB cluster
+- **Upstash** — Redis, free 10k commands/day
+
+---
+
+## File structure
+
+```
+carbonera/
+├── client/                         # React frontend (Vite)
+│   ├── public/
+│   │   └── data/
+│   │       └── co2-historical.csv  # Downloaded from OWID, bundled locally
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ui/                 # shadcn components (auto-generated)
+│   │   │   ├── Globe.jsx           # Three.js Earth globe
+│   │   │   ├── HistoryScroll.jsx   # GSAP scroll timeline 1750→2024
+│   │   │   ├── LiveCounter.jsx     # Real-time CO2 PPM + grid emissions
+│   │   │   ├── Quiz.jsx            # Multi-step lifestyle quiz
+│   │   │   ├── FootprintResult.jsx # Your number + comparison bars
+│   │   │   ├── XPBreakdown.jsx     # Gamified 4-category breakdown
+│   │   │   ├── AIStory.jsx         # LLM story display with streaming
+│   │   │   ├── CarbonCard.jsx      # Shareable card (html-to-image)
+│   │   │   └── Leaderboard.jsx     # City vs city leaderboard
+│   │   ├── hooks/
+│   │   │   ├── useScrollTrigger.js
+│   │   │   └── useFootprintCalc.js # Client-side emission factor math
+│   │   ├── lib/
+│   │   │   ├── emissionFactors.js  # Indian food/transport/energy constants
+│   │   │   └── utils.js            # shadcn utility (cn function)
+│   │   ├── pages/
+│   │   │   └── Home.jsx            # Single page, all sections stacked
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css               # Tailwind directives + custom globals
+│   ├── .env                        # VITE_API_URL=http://localhost:5000
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   └── package.json
+│
+├── server/                         # Node.js + Express backend
+│   ├── routes/
+│   │   ├── story.js                # POST /api/story → calls LLM API
+│   │   ├── leaderboard.js          # GET/POST /api/leaderboard
+│   │   ├── pledge.js               # POST /api/pledge
+│   │   └── live.js                 # GET /api/live → proxies CO2Signal
+│   ├── middleware/
+│   │   ├── rateLimiter.js          # express-rate-limit + Upstash Redis
+│   │   └── logger.js               # Winston structured logging
+│   ├── models/
+│   │   ├── Submission.js           # Mongoose schema: city, score, category scores
+│   │   └── Pledge.js               # Mongoose schema: pledge type, city
+│   ├── services/
+│   │   ├── llmService.js           # Calls Claude or OpenAI API
+│   │   └── co2SignalService.js     # Fetches + caches grid emissions
+│   ├── .env                        # All secrets go here
+│   ├── index.js                    # Express app entry point
+│   └── package.json
+│
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Environment variables
+
+### client/.env
+```
+VITE_API_URL=http://localhost:5000
+```
+
+### server/.env
+```
+PORT=5000
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/carbonera
+UPSTASH_REDIS_URL=https://...upstash.io
+UPSTASH_REDIS_TOKEN=your_token_here
+CO2_SIGNAL_API_KEY=your_key_here
+CLIMATIQ_API_KEY=your_key_here
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...        # optional fallback
+```
+
+---
+
+## How to call the LLM API
+
+### Using Claude (Anthropic) — recommended
+
+```js
+// server/services/llmService.js
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export async function generateCarbonStory(userData) {
+  const { city, totalCO2, dietScore, transportScore, energyScore, topCategory } = userData;
+
+  const prompt = `
+You are a climate scientist writing a personal carbon story for someone.
+
+User profile:
+- City: ${city}
+- Annual carbon footprint: ${totalCO2} kg CO2 (India avg: 1900 kg, global avg: 4800 kg)
+- Biggest impact area: ${topCategory}
+- Diet score: ${dietScore}/100, Transport score: ${transportScore}/100, Energy score: ${energyScore}/100
+
+Write exactly 3 short paragraphs:
+1. What their footprint means for ${city} in 2050 if everyone lived like them (visceral, specific)
+2. The one change that would save the most CO2 for their profile (with exact kg savings)
+3. One surprising fact about their biggest impact area (${topCategory}) that most people don't know
+
+Keep it personal, honest, and non-preachy. Under 200 words total.
+  `;
+
+  const message = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 400,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  return message.content[0].text;
+}
+```
+
+### Using OpenAI as fallback
+
+```js
+// server/services/llmService.js (OpenAI version)
+import OpenAI from "openai";
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export async function generateCarbonStory(userData) {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",   // cheapest + fast
+    messages: [
+      { role: "system", content: "You are a climate scientist writing personal carbon stories." },
+      { role: "user", content: buildPrompt(userData) }
+    ],
+    max_tokens: 400,
+  });
+  return completion.choices[0].message.content;
+}
+```
+
+### Express route that calls it
+
+```js
+// server/routes/story.js
+import express from "express";
+import { generateCarbonStory } from "../services/llmService.js";
+import { rateLimiter } from "../middleware/rateLimiter.js";
+
+const router = express.Router();
+
+router.post("/", rateLimiter, async (req, res) => {
+  try {
+    const story = await generateCarbonStory(req.body);
+    res.json({ story });
+  } catch (err) {
+    res.status(500).json({ error: "Story generation failed" });
+  }
+});
+
+export default router;
+```
+
+---
+
+## Emission factors — Indian dataset (hardcode this)
+
+```js
+// client/src/lib/emissionFactors.js
+
+export const FOOD_FACTORS = {
+  vegan:        0.9,   // kg CO2 per day
+  vegetarian:   1.4,
+  occasional:   2.1,
+  regular:      3.3,
+  beef_heavy:   6.0,
+};
+
+export const TRANSPORT_FACTORS = {
+  walking:      0.0,
+  cycling:      0.0,
+  metro:        0.03,   // kg CO2 per km
+  bus:          0.04,
+  auto:         0.09,
+  cng_car:      0.12,
+  petrol_car:   0.17,
+  diesel_car:   0.19,
+};
+
+export const ENERGY_FACTORS = {
+  india_grid:   0.71,   // kg CO2 per kWh (coal-heavy)
+  solar:        0.04,
+  mixed:        0.40,
+};
+
+export const FLIGHT_FACTOR = 0.13; // kg CO2 per km per passenger (avg)
+
+export const INDIA_AVG    = 1900;  // kg CO2/year
+export const GLOBAL_AVG   = 4800;
+export const PARIS_TARGET = 2000;
+
+export const CITY_EQUIVALENTS = (kg) => [
+  `${(kg / 0.17 / 1).toFixed(0)} km driven in a petrol car`,
+  `${(kg / 2.3).toFixed(0)} full charges of a laptop every day for a year`,
+  `Equivalent to planting ${(kg / 21).toFixed(0)} trees to offset`,
+];
+```
+
+---
+
+## How to use shadcn/ui
+
+```bash
+# In client/ directory
+npx shadcn@latest init
+# Choose: TypeScript? No | Style: Default | Base color: Slate | CSS variables: Yes
+
+# Add components as needed
+npx shadcn@latest add button
+npx shadcn@latest add progress
+npx shadcn@latest add card
+npx shadcn@latest add slider
+npx shadcn@latest add badge
+npx shadcn@latest add dialog
+```
+
+Use them like:
+```jsx
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Card, CardContent } from "@/components/ui/card"
+```
+
+---
+
+## How to use Aceternity UI
+
+Aceternity has no npm install — you copy components directly from their site.
+
+1. Go to https://ui.aceternity.com/components
+2. Pick the component (e.g. "Aurora Background", "Sparkles", "Text Generate Effect", "Moving Border")
+3. Copy the code into `client/src/components/ui/`
+4. It uses `framer-motion` and `clsx` — install them:
+
+```bash
+npm install framer-motion clsx tailwind-merge
+```
+
+**Best Aceternity components for this project:**
+- `AuroraBackground` — for the hero / landing section
+- `TextGenerateEffect` — for the AI story reveal (streams text letter by letter)
+- `SparklesCore` — particle effect on the Earth globe section
+- `MovingBorder` — for the Carbon Card and quiz result box
+- `BackgroundGradientAnimation` — for the crisis/red section
+- `NumberTicker` — for the live CO2 counter
+
+---
+
+## How to use GSAP ScrollTrigger
+
+```bash
+npm install gsap
+```
+
+```jsx
+// client/src/components/HistoryScroll.jsx
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+export function HistoryScroll() {
+  const containerRef = useRef();
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Animate year counter from 1750 to 2024 as user scrolls
+      gsap.to(".year-display", {
+        innerText: 2024,
+        snap: { innerText: 1 },
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+
+      // Fade in each timeline event
+      gsap.utils.toArray(".timeline-event").forEach((el) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 40,
+          scrollTrigger: { trigger: el, start: "top 80%", toggleActions: "play none none reverse" },
+        });
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section ref={containerRef} className="min-h-[500vh] relative">
+      <div className="sticky top-0 h-screen flex items-center justify-center">
+        <span className="year-display text-8xl font-bold text-white">1750</span>
+      </div>
+      {/* Timeline events absolutely positioned along scroll height */}
+    </section>
+  );
+}
+```
+
+---
+
+## How to set up Three.js Globe
+
+```bash
+npm install three @react-three/fiber @react-three/drei
+```
+
+```jsx
+// client/src/components/Globe.jsx
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Sphere } from "@react-three/drei";
+
+export function Globe({ haziness = 0 }) {
+  return (
+    <Canvas camera={{ position: [0, 0, 2.5] }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[5, 3, 5]} />
+      <Sphere args={[1, 64, 64]}>
+        <meshStandardMaterial
+          color="#1a6b8a"
+          roughness={0.8}
+          metalness={0.1}
+          opacity={1 - haziness * 0.3}
+          transparent
+        />
+      </Sphere>
+      {/* Add haze sphere that grows with scroll */}
+      <Sphere args={[1.05, 32, 32]}>
+        <meshStandardMaterial
+          color="#8B4513"
+          transparent
+          opacity={haziness * 0.25}
+        />
+      </Sphere>
+      <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
+    </Canvas>
+  );
+}
+```
+
+---
+
+## Shareable Carbon Card (html-to-image)
+
+```bash
+npm install html-to-image
+```
+
+```jsx
+import { toPng } from "html-to-image";
+import { useRef } from "react";
+
+export function CarbonCard({ totalCO2, city, pledge, level }) {
+  const cardRef = useRef();
+
+  const download = async () => {
+    const dataUrl = await toPng(cardRef.current);
+    const link = document.createElement("a");
+    link.download = "my-carbon-card.png";
+    link.href = dataUrl;
+    link.click();
+  };
+
+  return (
+    <>
+      <div ref={cardRef} className="w-80 p-6 bg-gradient-to-br from-emerald-900 to-slate-900 rounded-2xl text-white">
+        <p className="text-xs uppercase tracking-widest text-emerald-400 mb-1">CarbonEra</p>
+        <h2 className="text-4xl font-bold">{(totalCO2 / 1000).toFixed(1)}t CO₂</h2>
+        <p className="text-sm text-slate-300 mt-1">{city} · {new Date().getFullYear()}</p>
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <p className="text-xs text-slate-400">My pledge</p>
+          <p className="text-sm font-medium mt-1">{pledge}</p>
+        </div>
+        <div className="mt-3 inline-block bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full">
+          {level}
+        </div>
+      </div>
+      <button onClick={download} className="mt-4 w-full py-2 border border-white/20 rounded-lg text-sm">
+        Download card
+      </button>
+    </>
+  );
+}
+```
+
+---
+
+## MongoDB schema (Mongoose)
+
+```js
+// server/models/Submission.js
+import mongoose from "mongoose";
+
+const submissionSchema = new mongoose.Schema({
+  city:           { type: String, required: true },
+  totalCO2:       { type: Number, required: true },  // kg/year
+  dietScore:      Number,
+  transportScore: Number,
+  energyScore:    Number,
+  shoppingScore:  Number,
+  createdAt:      { type: Date, default: Date.now },
+});
+
+export default mongoose.model("Submission", submissionSchema);
+```
+
+---
+
+## Rate limiting (protect your LLM endpoint)
+
+```js
+// server/middleware/rateLimiter.js
+import rateLimit from "express-rate-limit";
+
+export const rateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,  // 1 hour
+  max: 3,                      // max 3 LLM calls per IP per hour
+  message: { error: "Too many requests. Try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+```
+
+---
+
+## Deployment checklist
+
+### Frontend → Vercel
+1. Push `client/` to GitHub
+2. Connect repo to Vercel, set root to `client/`
+3. Add env var: `VITE_API_URL=https://your-render-backend.onrender.com`
+4. Deploy
+
+### Backend → Render
+1. Push `server/` to GitHub (or same repo, set root dir to `server/`)
+2. Create new Web Service on Render, build command: `npm install`, start: `node index.js`
+3. Add all `.env` vars in Render's environment settings
+4. Deploy — note your public URL, paste into Vercel env var
+
+---
+
+## 10-day sprint plan
+
+| Day | What to build |
+|---|---|
+| 1 | Vite + React setup, Tailwind, shadcn init, folder structure |
+| 2 | History scroll section — GSAP + OWID data + timeline events |
+| 3 | Three.js Globe + Live CO2 counter (CO2Signal API) |
+| 4 | Quiz component — multi-step, Framer Motion transitions |
+| 5 | Footprint calc logic + result display + comparison bars |
+| 6 | XP breakdown + gamification layer + leaderboard UI |
+| 7 | Backend — Express, MongoDB, all routes, rate limiter |
+| 8 | LLM integration — story generation endpoint + AIStory component |
+| 9 | Carbon Card + html-to-image + Aceternity polish |
+| 10 | Deploy (Vercel + Render), fix bugs, final UI polish |
+
+---
+
+## Key data sources
+
+- **OWID CO2 dataset:** https://github.com/owid/co2-data — download `owid-co2-data.csv`
+- **CO2 Signal API:** https://www.electricitymaps.com/free-tier-api — sign up, use `GET /v3/carbon-intensity/latest?zone=IN`
+- **Climatiq API:** https://www.climatiq.io — free 100 calls/month
+- **Global Carbon Project:** https://globalcarbonbudget.org/carbonbudget
+
+---
+
+## How to start vibe coding
+
+Paste this entire document into your AI coding tool (Cursor, Windsurf, v0, Bolt, etc.) and say:
+
+> "I'm building CarbonEra as described in this blueprint. Start by scaffolding the full project structure, then build the History Scroll section first with GSAP and real OWID data. Use React + Vite + Tailwind. Ask me before installing any paid services."
+
+Then iterate section by section. Always keep the `.env` files separate and never commit them to GitHub.
+
+instead of all features at onece, lets first get the overall file structure and necessary components right......and lets go step by step adding features along the way ........ 

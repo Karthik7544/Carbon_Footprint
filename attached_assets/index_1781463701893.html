@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Carbon Footprint awareness platform with an interactive sustainability reveal hero."
+    />
+    <title>Carbon Footprint Awareness</title>
+    <link rel="preload" href="assets/images/hero-pollution.png" as="image" />
+    <link rel="preload" href="assets/images/hero-nature.png" as="image" />
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <script src="src/scripts/main.js" defer></script>
+  </head>
+  <body>
+    <main class="site-shell">
+      <section
+        class="hero-reveal"
+        data-spotlight-hero
+        aria-labelledby="hero-title"
+      >
+        <div class="hero-reveal__media" aria-hidden="true">
+          <div class="hero-reveal__image hero-reveal__image--future"></div>
+          <div class="hero-reveal__image hero-reveal__image--present"></div>
+          <div class="hero-reveal__bubble"></div>
+          <div class="hero-reveal__atmosphere"></div>
+        </div>
+
+        <div class="hero-reveal__content">
+          <p class="hero-reveal__eyebrow">Awareness starts with seeing clearly</p>
+          <h1 class="hero-reveal__title" id="hero-title">CARBON</h1>
+          <p class="hero-reveal__subtitle">Footprint</p>
+          <a class="hero-reveal__cta" href="#play-game" aria-label="Play the carbon footprint game">
+            Play Game
+          </a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

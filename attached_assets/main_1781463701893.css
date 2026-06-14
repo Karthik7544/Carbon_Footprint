@@ -1,0 +1,264 @@
+:root {
+  --font-display: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --hero-spotlight-inner: clamp(86px, 11vw, 116px);
+  --hero-spotlight-outer: clamp(118px, 15vw, 150px);
+  --hero-mask-x: var(--hero-spotlight-outer);
+  --hero-mask-y: var(--hero-spotlight-outer);
+  --hero-x: -999px;
+  --hero-y: -999px;
+  --hero-bubble-scale-x: 1;
+  --hero-bubble-scale-y: 1;
+  --hero-bubble-rotate: 0deg;
+  --hero-bubble-opacity: 0;
+  --hero-text: #f7fbff;
+  --hero-muted: rgba(247, 251, 255, 0.72);
+  --hero-glass: rgba(255, 255, 255, 0.1);
+  --hero-border: rgba(255, 255, 255, 0.26);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: #07100f;
+  color: var(--hero-text);
+  font-family: var(--font-display);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-shell {
+  min-height: 100vh;
+  background: #07100f;
+}
+
+.hero-reveal {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100svh;
+  overflow: hidden;
+  place-items: center;
+  padding: clamp(2rem, 5vw, 5rem);
+  cursor: none;
+}
+
+.hero-reveal__media,
+.hero-reveal__image,
+.hero-reveal__bubble,
+.hero-reveal__atmosphere {
+  position: absolute;
+}
+
+.hero-reveal__media {
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: #07100f;
+}
+
+.hero-reveal__image {
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  transform: translateZ(0);
+  will-change: mask-image, -webkit-mask-image;
+}
+
+.hero-reveal__image--future {
+  background-image: url("../../assets/images/hero-nature.png");
+}
+
+.hero-reveal__image--present {
+  background-image:
+    linear-gradient(rgba(2, 6, 10, 0.16), rgba(2, 6, 10, 0.2)),
+    url("../../assets/images/hero-pollution.png");
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--hero-mask-x) var(--hero-mask-y) at var(--hero-x) var(--hero-y),
+    transparent 0,
+    transparent 58%,
+    rgba(0, 0, 0, 0.22) 72%,
+    rgba(0, 0, 0, 0.72) 88%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse var(--hero-mask-x) var(--hero-mask-y) at var(--hero-x) var(--hero-y),
+    transparent 0,
+    transparent 58%,
+    rgba(0, 0, 0, 0.22) 72%,
+    rgba(0, 0, 0, 0.72) 88%,
+    #000 100%
+  );
+}
+
+.hero-reveal__bubble {
+  left: var(--hero-x);
+  top: var(--hero-y);
+  z-index: 1;
+  width: clamp(184px, 22vw, 284px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(215, 255, 236, 0.32);
+  border-radius: 46% 54% 52% 48% / 43% 47% 53% 57%;
+  background:
+    radial-gradient(circle at 31% 27%, rgba(255, 255, 255, 0.26), transparent 13%),
+    radial-gradient(circle at 66% 68%, rgba(177, 255, 213, 0.13), transparent 24%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03), transparent 58%);
+  box-shadow:
+    inset 12px 18px 36px rgba(255, 255, 255, 0.12),
+    inset -18px -22px 42px rgba(40, 111, 91, 0.16),
+    0 0 46px rgba(188, 255, 221, 0.12);
+  opacity: var(--hero-bubble-opacity);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scaleX(var(--hero-bubble-scale-x)) scaleY(var(--hero-bubble-scale-y)) rotate(var(--hero-bubble-rotate));
+  transition: opacity 260ms ease;
+  will-change: left, top, opacity, transform;
+}
+
+.hero-reveal__atmosphere {
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 0.24) 42%, rgba(0, 0, 0, 0.72));
+  pointer-events: none;
+}
+
+.hero-reveal__content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  text-shadow: 0 22px 80px rgba(0, 0, 0, 0.72);
+  user-select: none;
+}
+
+.hero-reveal__eyebrow {
+  margin: 0 0 1.1rem;
+  color: var(--hero-muted);
+  font-size: clamp(0.72rem, 1.5vw, 0.86rem);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero-reveal__title {
+  margin: 0;
+  font-size: clamp(4.2rem, 15vw, 13rem);
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 0.82;
+}
+
+.hero-reveal__subtitle {
+  margin: clamp(0.5rem, 1.6vw, 1rem) 0 clamp(1.8rem, 4vw, 3rem);
+  color: rgba(247, 251, 255, 0.9);
+  font-size: clamp(1.55rem, 4vw, 4.5rem);
+  font-weight: 520;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.hero-reveal__cta {
+  display: inline-grid;
+  min-width: 9.75rem;
+  min-height: 3.35rem;
+  place-items: center;
+  border: 1px solid var(--hero-border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1)),
+    var(--hero-glass);
+  box-shadow:
+    0 20px 70px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(20px) saturate(140%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 760;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.hero-reveal__cta:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.46);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.14)),
+    rgba(255, 255, 255, 0.14);
+}
+
+.hero-reveal__cta:focus-visible {
+  outline: 3px solid rgba(178, 255, 204, 0.8);
+  outline-offset: 5px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero-reveal {
+    cursor: auto;
+  }
+
+  .hero-reveal__image--present {
+    --hero-x: 50%;
+    --hero-y: 46%;
+    -webkit-mask-image: radial-gradient(
+      circle at var(--hero-x) var(--hero-y),
+      transparent 0,
+      transparent 112px,
+      rgba(0, 0, 0, 0.34) 156px,
+      #000 210px
+    );
+    mask-image: radial-gradient(
+      circle at var(--hero-x) var(--hero-y),
+      transparent 0,
+      transparent 112px,
+      rgba(0, 0, 0, 0.34) 156px,
+      #000 210px
+    );
+  }
+
+  .hero-reveal__bubble {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-reveal {
+    padding: 1.5rem;
+  }
+
+  .hero-reveal__eyebrow {
+    max-width: 18rem;
+    line-height: 1.5;
+  }
+
+  .hero-reveal__cta {
+    min-width: 9rem;
+    min-height: 3.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-reveal__cta {
+    transition: none;
+  }
+}
