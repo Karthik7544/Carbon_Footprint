@@ -29,6 +29,7 @@ export default function PledgeCard({ result, onContinue }: Props) {
   const queryClient = useQueryClient();
   const createPledge = useCreatePledge();
   const { data: stats } = useGetPledgeStats();
+  const pledgeStats = Array.isArray(stats) ? stats : [];
   const level = getLevel(result.totalCO2);
 
   const handlePledge = () => {
@@ -77,7 +78,7 @@ export default function PledgeCard({ result, onContinue }: Props) {
           <>
             <div className="space-y-3 mb-6">
               {PLEDGES.map(pledge => {
-                const count = stats?.find((s: PledgeStat) => s.pledgeType === pledge.key)?.count ?? 0;
+                const count = pledgeStats.find((s: PledgeStat) => s.pledgeType === pledge.key)?.count ?? 0;
                 return (
                   <button
                     key={pledge.key}

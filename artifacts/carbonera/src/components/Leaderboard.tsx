@@ -4,6 +4,7 @@ import { INDIA_AVG, PARIS_TARGET, getLevel } from "@/lib/emissions";
 
 export default function Leaderboard() {
   const { data: entries, isLoading } = useGetLeaderboard();
+  const leaderboardEntries = Array.isArray(entries) ? entries : [];
 
   return (
     <section
@@ -40,16 +41,16 @@ export default function Leaderboard() {
           </div>
         )}
 
-        {!isLoading && (!entries || entries.length === 0) && (
+        {!isLoading && leaderboardEntries.length === 0 && (
           <div className="text-center py-16">
             <div className="text-white/20 text-5xl mb-4">~</div>
             <p className="text-white/40 text-sm">Be the first from your city to take the quiz.</p>
           </div>
         )}
 
-        {!isLoading && entries && entries.length > 0 && (
+        {!isLoading && leaderboardEntries.length > 0 && (
           <div className="space-y-2">
-            {entries.map((entry: LeaderboardEntry, i: number) => {
+            {leaderboardEntries.map((entry: LeaderboardEntry, i: number) => {
               const level = getLevel(entry.avgCO2);
               const pct = Math.min((entry.avgCO2 / 6000) * 100, 100);
               return (

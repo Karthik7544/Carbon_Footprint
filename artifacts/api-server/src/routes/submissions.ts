@@ -38,6 +38,12 @@ router.post("/submissions", async (req, res): Promise<void> => {
   });
 });
 
+interface LeaderboardRow {
+  city: string;
+  avgCO2: number;
+  count: number;
+}
+
 router.get("/leaderboard", async (_req, res): Promise<void> => {
   const rows = await db
     .select({
@@ -48,7 +54,7 @@ router.get("/leaderboard", async (_req, res): Promise<void> => {
     .from(submissionsTable)
     .groupBy(submissionsTable.city)
     .orderBy(sql`avg(${submissionsTable.totalCO2}) asc`)
-    .limit(20);
+    .limit(20) as LeaderboardRow[];
 
   res.json(rows.map((r) => ({
     city: r.city,
