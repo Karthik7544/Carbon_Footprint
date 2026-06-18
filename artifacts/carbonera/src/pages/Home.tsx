@@ -3,18 +3,22 @@ import Hero from "@/components/Hero";
 import HistoryScroll from "@/components/HistoryScroll";
 import LiveStats from "@/components/LiveStats";
 import Quiz from "@/components/Quiz";
+import CarbonJourney from "@/components/CarbonJourney";
 import FootprintResult from "@/components/FootprintResult";
 import AIStory from "@/components/AIStory";
 import PledgeCard from "@/components/PledgeCard";
 import Leaderboard from "@/components/Leaderboard";
 import { type FootprintResult as FootprintResultType } from "@/lib/emissions";
+import { type JourneyResult } from "@/lib/journey";
 
-type Stage = "quiz" | "result" | "story" | "pledge" | "leaderboard";
+type Stage = "quiz" | "journey" | "result" | "story" | "pledge" | "leaderboard";
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>("quiz");
   const [quizResult, setQuizResult] = useState<(FootprintResultType & { city: string }) | null>(null);
+  const [journeyResult, setJourneyResult] = useState<JourneyResult | null>(null);
 
+  const journeyRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const storyRef = useRef<HTMLDivElement>(null);
   const pledgeRef = useRef<HTMLDivElement>(null);
@@ -28,6 +32,12 @@ export default function Home() {
 
   const handleQuizComplete = (result: FootprintResultType & { city: string }) => {
     setQuizResult(result);
+    setStage("journey");
+    scrollTo(journeyRef);
+  };
+
+  const handleJourneyComplete = (result: JourneyResult) => {
+    setJourneyResult(result);
     setStage("result");
     scrollTo(resultRef);
   };
@@ -54,9 +64,19 @@ export default function Home() {
       <LiveStats />
       <Quiz onComplete={handleQuizComplete} />
 
-      {quizResult && stage !== "quiz" && (
+      {quizResult && stage === "journey" && (
+        <div ref={journeyRef}>
+          <CarbonJourney result={quizResult} onComplete={handleJourneyComplete} />
+        </div>
+      )}
+
+      {quizResult && stage !== "quiz" && stage !== "journey" && (
         <div ref={resultRef}>
-          <FootprintResult result={quizResult} onContinue={handleResultContinue} />
+          <FootprintResult
+            result={quizResult}
+            journeyResult={journeyResult}
+            onContinue={handleResultContinue}
+          />
         </div>
       )}
 

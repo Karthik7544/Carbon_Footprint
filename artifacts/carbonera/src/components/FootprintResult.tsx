@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { INDIA_AVG, GLOBAL_AVG, PARIS_TARGET, getLevel, type FootprintResult } from "@/lib/emissions";
+import { type JourneyResult } from "@/lib/journey";
 
 interface Props {
   result: FootprintResult & { city: string };
+  journeyResult?: JourneyResult | null;
   onContinue: () => void;
 }
 
@@ -69,7 +71,7 @@ function XPBar({ label, score, color }: { label: string; score: number; color: s
   );
 }
 
-export default function FootprintResult({ result, onContinue }: Props) {
+export default function FootprintResult({ result, journeyResult, onContinue }: Props) {
   const level = getLevel(result.totalCO2);
   const max = Math.max(result.totalCO2, GLOBAL_AVG) * 1.1;
 
@@ -148,6 +150,20 @@ export default function FootprintResult({ result, onContinue }: Props) {
             </div>
           ))}
         </motion.div>
+
+        {journeyResult && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="mb-8 p-4 rounded-xl text-center"
+            style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.12)" }}
+          >
+            <p className="text-white/40 text-xs uppercase tracking-widest mb-1">Carbon Journey</p>
+            <p className="text-emerald-400 font-bold">{journeyResult.environmentHealth}/100 environmental health</p>
+            <p className="text-white/50 text-xs mt-1">{journeyResult.airQuality} air · {journeyResult.cityCondition}</p>
+          </motion.div>
+        )}
 
         <motion.button
           data-testid="button-continue-to-story"

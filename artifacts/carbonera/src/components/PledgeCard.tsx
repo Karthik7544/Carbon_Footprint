@@ -1,7 +1,12 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { toPng } from "html-to-image";
-import { useCreatePledge, useGetPledgeStats, getGetPledgeStatsQueryKey } from "@workspace/api-client-react";
+import {
+  type PledgeStat,
+  useCreatePledge,
+  useGetPledgeStats,
+  getGetPledgeStatsQueryKey,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getLevel, type FootprintResult } from "@/lib/emissions";
 
@@ -72,7 +77,7 @@ export default function PledgeCard({ result, onContinue }: Props) {
           <>
             <div className="space-y-3 mb-6">
               {PLEDGES.map(pledge => {
-                const count = stats?.find(s => s.pledgeType === pledge.key)?.count ?? 0;
+                const count = stats?.find((s: PledgeStat) => s.pledgeType === pledge.key)?.count ?? 0;
                 return (
                   <button
                     key={pledge.key}

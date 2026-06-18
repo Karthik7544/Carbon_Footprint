@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useGenerateStory } from "@workspace/api-client-react";
+import { type StoryResponse, useGenerateStory } from "@workspace/api-client-react";
 import { type FootprintResult } from "@/lib/emissions";
 
 interface Props {
@@ -53,7 +53,7 @@ export default function AIStory({ result, onContinue }: Props) {
         topCategory: result.topCategory,
       }
     }, {
-      onSuccess: (data) => {
+      onSuccess: (data: StoryResponse) => {
         const text = data.story;
         setStory(text);
         const parts = text.split("\n\n").filter(Boolean);

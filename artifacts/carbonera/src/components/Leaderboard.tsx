@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useGetLeaderboard } from "@workspace/api-client-react";
+import { type LeaderboardEntry, useGetLeaderboard } from "@workspace/api-client-react";
 import { INDIA_AVG, PARIS_TARGET, getLevel } from "@/lib/emissions";
 
 export default function Leaderboard() {
@@ -49,7 +49,7 @@ export default function Leaderboard() {
 
         {!isLoading && entries && entries.length > 0 && (
           <div className="space-y-2">
-            {entries.map((entry, i) => {
+            {entries.map((entry: LeaderboardEntry, i: number) => {
               const level = getLevel(entry.avgCO2);
               const pct = Math.min((entry.avgCO2 / 6000) * 100, 100);
               return (
