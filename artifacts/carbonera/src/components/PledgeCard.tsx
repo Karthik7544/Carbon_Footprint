@@ -34,11 +34,13 @@ export default function PledgeCard({ result, onContinue }: Props) {
 
   const handlePledge = () => {
     if (!selected) return;
+
+    setPledgeDone(true);
+
     createPledge.mutate(
       { data: { city: result.city, pledgeType: selected } },
       {
         onSuccess: () => {
-          setPledgeDone(true);
           queryClient.invalidateQueries({ queryKey: getGetPledgeStatsQueryKey() });
         },
       }
