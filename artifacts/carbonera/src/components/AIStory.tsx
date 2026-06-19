@@ -8,6 +8,35 @@ interface Props {
   onContinue: () => void;
 }
 
+function buildLocalStory(result: FootprintResult & { city: string }): string {
+  const indiaAvg = 1900;
+  const parisTarget = 2000;
+  const diff = result.totalCO2 - indiaAvg;
+  const aboveParis = result.totalCO2 > parisTarget;
+
+  const categoryDescriptions: Record<string, string> = {
+    diet: "food and diet choices",
+    transport: "transportation and daily commuting",
+    energy: "home energy consumption",
+    shopping: "consumer purchases and shopping",
+  };
+
+  const topDesc = categoryDescriptions[result.topCategory.toLowerCase()] ?? result.topCategory;
+  const kgSavings = Math.round(result.totalCO2 * 0.22);
+  const treesNeeded = Math.round(result.totalCO2 / 21);
+  const topScore = Math.round(
+    Math.max(result.dietScore, result.transportScore, result.energyScore, result.shoppingScore),
+  );
+
+  return [
+    `Every year, your choices in ${result.city} release ${Math.round(result.totalCO2).toLocaleString()} kg of CO2 into the atmosphere, ${diff > 0 ? `${Math.round(diff).toLocaleString()} kg above` : `${Math.round(Math.abs(diff)).toLocaleString()} kg below`} the Indian average. If everyone in ${result.city} lived exactly like you, the city's per-capita emissions would ${diff > 0 ? "exceed" : "fall below"} national baselines. By 2050, a city of 10 million living at your footprint would ${diff > 0 ? "add pressure to" : "ease pressure on"} local air quality, heat stress, and energy demand.`,
+
+    `Your single biggest lever is ${topDesc}, which drives about ${topScore}% of your impact profile. Optimising this one category alone could save you roughly ${kgSavings.toLocaleString()} kg CO2 per year. That shift would bring you ${aboveParis ? "closer to" : "well within"} the Paris Agreement's 2000 kg per-person target.`,
+
+    `Here is the part that matters: carbon adds up quietly through ordinary habits. A single shift, such as ${result.topCategory.toLowerCase() === "diet" ? "replacing two high-emission meals per week with plant-based ones" : result.topCategory.toLowerCase() === "transport" ? "switching one car trip per day to public transit" : result.topCategory.toLowerCase() === "energy" ? "reducing wasteful electricity use and choosing cleaner power" : "buying fewer, longer-lasting items"}, would require planting ${Math.round(kgSavings / 21)} fewer trees to offset. You would need ${treesNeeded.toLocaleString()} trees just to absorb your current annual output.`,
+  ].join("\n\n");
+}
+
 function TypewriterText({ text, onDone }: { text: string; onDone?: () => void }) {
   const [displayed, setDisplayed] = useState("");
 
@@ -42,6 +71,13 @@ export default function AIStory({ result, onContinue }: Props) {
 
   const generateStory = useGenerateStory();
 
+  const showStory = (text: string) => {
+    setStory(text);
+    const parts = text.split("\n\n").filter(Boolean);
+    setParagraphs(parts);
+    setVisibleCount(1);
+  };
+
   const handleGenerate = () => {
     generateStory.mutate({
       data: {
@@ -54,12 +90,11 @@ export default function AIStory({ result, onContinue }: Props) {
       }
     }, {
       onSuccess: (data: StoryResponse) => {
-        const text = data.story;
-        setStory(text);
-        const parts = text.split("\n\n").filter(Boolean);
-        setParagraphs(parts);
-        setVisibleCount(1);
-      }
+        showStory(data.story);
+      },
+      onError: () => {
+        showStory(buildLocalStory(result));
+      },
     });
   };
 
@@ -176,7 +211,7 @@ export default function AIStory({ result, onContinue }: Props) {
           </motion.div>
         )}
 
-        {generateStory.isError && (
+        {generateStory.isError && !story && (
           <div className="text-center py-8">
             <p className="text-red-400 text-sm mb-4">Could not generate story. Please try again.</p>
             <button onClick={handleGenerate} className="text-emerald-400 text-sm underline">Retry</button>
