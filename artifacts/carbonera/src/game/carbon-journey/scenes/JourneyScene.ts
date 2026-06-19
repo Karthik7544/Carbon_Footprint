@@ -36,6 +36,8 @@ export class JourneyScene extends Phaser.Scene {
   init(data: { bridge: JourneyBridge; initialHealth: number; city: string }) {
     this.bridge = data.bridge;
     this.registry.set("initialHealth", data.initialHealth);
+    this.zoneMarkers = [];
+    this.zoneLabels = [];
     this.completedZones.clear();
     this.activeZoneIndex = 0;
     this.awaitingChoice = false;
@@ -131,7 +133,7 @@ export class JourneyScene extends Phaser.Scene {
 
       const sign = this.add.rectangle(cx, 250, 180, 36, 0x0d1f18, 0.85);
       sign.setStrokeStyle(2, 0x22c55e, 0.4);
-      sign.setDepth(-1);
+      sign.setDepth(4);
 
       const label = this.add
         .text(cx, 250, zone.title, {
@@ -141,13 +143,14 @@ export class JourneyScene extends Phaser.Scene {
           fontStyle: "bold",
         })
         .setOrigin(0.5)
-        .setDepth(-1);
+        .setDepth(5);
       this.zoneLabels.push(label);
 
       const marker = this.add.container(cx, 380);
       const ring = this.add.image(0, 0, "marker").setAlpha(0.85);
       marker.add(ring);
       marker.setSize(48, 48);
+      marker.setDepth(6);
       this.tweens.add({
         targets: ring,
         scale: { from: 0.9, to: 1.15 },

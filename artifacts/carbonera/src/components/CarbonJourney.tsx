@@ -85,6 +85,9 @@ export default function CarbonJourney({ result, onComplete }: Props) {
   const initGame = useCallback(() => {
     if (!containerRef.current || gameRef.current) return;
 
+    containerRef.current.tabIndex = 0;
+    containerRef.current.focus();
+
     const bridge = bridgeRef.current;
     const initial = seedEnvironmentHealth(result);
 
@@ -107,6 +110,13 @@ export default function CarbonJourney({ result, onComplete }: Props) {
       bridge,
       initialHealth: initial,
       city: result.city,
+    });
+
+    requestAnimationFrame(() => {
+      containerRef.current?.focus();
+      const canvas = containerRef.current?.querySelector("canvas");
+      canvas?.setAttribute("tabindex", "0");
+      canvas?.focus();
     });
 
     setHealth(initial);

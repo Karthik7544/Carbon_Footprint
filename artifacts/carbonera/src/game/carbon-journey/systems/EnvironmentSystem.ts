@@ -35,11 +35,11 @@ export class EnvironmentSystem {
 
     const sky = scene.add
       .rectangle(worldWidth / 2, 140, worldWidth, 280, healthToSkyColor(this.health))
-      .setDepth(-10);
+      .setDepth(0);
 
     const ground = scene.add
       .rectangle(worldWidth / 2, 460, worldWidth, 120, healthToGroundTint(this.health))
-      .setDepth(-9);
+      .setDepth(1);
 
     const smog = scene.add.particles(0, 0, "smog-dot", {
       x: { min: 0, max: worldWidth },
@@ -52,7 +52,7 @@ export class EnvironmentSystem {
       quantity: 1,
       blendMode: "ADD",
     });
-    smog.setDepth(5);
+    smog.setDepth(8);
 
     const trees: Phaser.GameObjects.Container[] = [];
     const buildings: Phaser.GameObjects.Container[] = [];
@@ -133,7 +133,7 @@ export class EnvironmentSystem {
     const trunk = this.scene.add.rectangle(0, 18, 10, 28, 0x8b5a2b);
     const foliage = this.scene.add.ellipse(0, -8, 36, 42, 0x22c55e);
     const container = this.scene.add.container(x, y, [trunk, foliage]);
-    container.setDepth(-2);
+    container.setDepth(3);
     return container;
   }
 
@@ -143,7 +143,7 @@ export class EnvironmentSystem {
     const window1 = this.scene.add.rectangle(-15, 10, 14, 18, 0xfef08a, 0.6);
     const window2 = this.scene.add.rectangle(15, 25, 14, 18, 0xfef08a, 0.4);
     const container = this.scene.add.container(x, y, [body, roof, window1, window2]);
-    container.setDepth(-3);
+    container.setDepth(2);
     return container;
   }
 

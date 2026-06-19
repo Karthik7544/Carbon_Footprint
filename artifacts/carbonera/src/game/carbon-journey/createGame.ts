@@ -13,8 +13,8 @@ export interface CreateGameOptions {
 export function createCarbonJourneyGame(options: CreateGameOptions): Phaser.Game {
   const { parent, bridge, initialHealth, city } = options;
 
-  return new Phaser.Game({
-    type: Phaser.AUTO,
+  const game = new Phaser.Game({
+    type: Phaser.CANVAS,
     parent,
     width: 960,
     height: WORLD_HEIGHT,
@@ -32,10 +32,26 @@ export function createCarbonJourneyGame(options: CreateGameOptions): Phaser.Game
       width: 960,
       height: WORLD_HEIGHT,
     },
-    scene: {
-      key: "JourneyScene",
-      scene: JourneyScene,
-      data: { bridge, initialHealth, city },
-    } as unknown as Phaser.Types.Scenes.SceneType,
+    input: {
+      keyboard: {
+        target: window,
+        capture: [
+          Phaser.Input.Keyboard.KeyCodes.UP,
+          Phaser.Input.Keyboard.KeyCodes.DOWN,
+          Phaser.Input.Keyboard.KeyCodes.LEFT,
+          Phaser.Input.Keyboard.KeyCodes.RIGHT,
+          Phaser.Input.Keyboard.KeyCodes.W,
+          Phaser.Input.Keyboard.KeyCodes.A,
+          Phaser.Input.Keyboard.KeyCodes.S,
+          Phaser.Input.Keyboard.KeyCodes.D,
+          Phaser.Input.Keyboard.KeyCodes.E,
+        ],
+      },
+    },
+    scene: [],
   });
+
+  game.scene.add("JourneyScene", JourneyScene, true, { bridge, initialHealth, city });
+
+  return game;
 }
